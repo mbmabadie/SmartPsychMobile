@@ -1,0 +1,194 @@
+<!-- android/app/src/main/AndroidManifest.xml - ✅ النسخة المُحدّثة -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!-- الصلاحيات المطلوبة -->
+    <!-- ════════════════════════════════════════════════════════ -->
+
+    <!-- صلاحيات النشاط البدني -->
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+    <uses-permission android:name="android.permission.BODY_SENSORS" />
+
+    <!-- ⭐ Hardware Features للخطوات -->
+    <uses-feature android:name="android.hardware.sensor.stepdetector" android:required="false"
+        tools:targetApi="eclair" />
+    <uses-feature android:name="android.hardware.sensor.stepcounter" android:required="false"
+        tools:targetApi="eclair" />
+    <uses-feature android:name="android.hardware.sensor.accelerometer" android:required="false"
+        tools:targetApi="eclair" />
+
+    <!-- صلاحيات استخدام التطبيقات -->
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" android:maxSdkVersion="32"
+        tools:ignore="ExactAlarm"
+        tools:targetApi="donut" />
+
+    <!-- ✅ NEW: Display over other apps -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!-- صلاحيات الموقع -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+    <!-- صلاحيات الخدمات الخلفية -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
+    <!-- صلاحيات الإشعارات -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- صلاحيات الاستيقاظ والبطارية -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+
+    <!-- صلاحيات إضافية -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- ✅ NEW: صلاحيات AccessibilityService للتتبع الدقيق (اختياري) -->
+    <uses-permission android:name="android.permission.BIND_ACCESSIBILITY_SERVICE"
+        tools:ignore="ProtectedPermissions" />
+
+    <application
+        android:label="Smart Psych"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:usesCleartextTraffic="true">
+
+        <!-- ════════════════════════════════════════════════════════ -->
+        <!-- MainActivity -->
+        <!-- ════════════════════════════════════════════════════════ -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize"
+            android:enableOnBackInvokedCallback="true">
+
+            <meta-data
+                android:name="io.flutter.embedding.android.NormalTheme"
+                android:resource="@style/NormalTheme" />
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- ════════════════════════════════════════════════════════ -->
+        <!-- ✅ Background Service (للخدمات الخلفية) -->
+        <!-- ════════════════════════════════════════════════════════ -->
+        <service
+            android:name="id.flutter.flutter_background_service.BackgroundService"
+            android:exported="true"
+            android:foregroundServiceType="health|location|dataSync"
+            tools:replace="android:exported" />
+
+        <!-- ════════════════════════════════════════════════════════ -->
+        <!-- ✅ AccessibilityService للتتبع الدقيق 100% (اختياري) -->
+        <!-- ════════════════════════════════════════════════════════ -->
+        <service
+            android:name=".UsageTrackingAccessibilityService"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:exported="true"
+            android:enabled="false"
+            android:label="Smart Psych - تتبع دقيق للاستخدام"
+            android:description="@string/accessibility_service_description">
+
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+
+            <!-- إعدادات الخدمة -->
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
+        <!-- ════════════════════════════════════════════════════════ -->
+        <!-- ✅ Boot Receiver (للبدء عند إعادة التشغيل) -->
+        <!-- ════════════════════════════════════════════════════════ -->
+        <receiver
+            android:name="be.tramckrijte.workmanager.WorkmanagerPlugin$BootReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- ════════════════════════════════════════════════════════ -->
+        <!-- ✅ Broadcast Receiver للاتصال مع Flutter (اختياري) -->
+        <!-- ════════════════════════════════════════════════════════ -->
+        <receiver
+            android:name=".UsageDataReceiver"
+            android:exported="false"
+            android:enabled="false">
+            <intent-filter>
+                <action android:name="com.smart_psych.smart_psych.USAGE_DATA" />
+            </intent-filter>
+        </receiver>
+
+        <!-- ════════════════════════════════════════════════════════ -->
+        <!-- Flutter Metadata -->
+        <!-- ════════════════════════════════════════════════════════ -->
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+
+        <!-- ✅ WorkManager Provider (مهم للمهام الخلفية) -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup" />
+        </provider>
+
+    </application>
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!-- Queries للوصول لإعدادات النظام -->
+    <!-- ════════════════════════════════════════════════════════ -->
+    <queries>
+        <intent>
+            <action android:name="android.settings.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+        </intent>
+        <intent>
+            <action android:name="android.settings.APPLICATION_DETAILS_SETTINGS" />
+        </intent>
+        <intent>
+            <action android:name="android.settings.APP_NOTIFICATION_SETTINGS" />
+        </intent>
+        <intent>
+            <action android:name="android.settings.USAGE_ACCESS_SETTINGS" />
+        </intent>
+        <intent>
+            <action android:name="android.settings.BATTERY_SAVER_SETTINGS" />
+        </intent>
+        <!-- ✅ للوصول لإعدادات Accessibility -->
+        <intent>
+            <action android:name="android.settings.ACCESSIBILITY_SETTINGS" />
+        </intent>
+        <!-- ✅ للوصول لإعدادات MIUI -->
+        <intent>
+            <action android:name="miui.intent.action.APP_PERM_EDITOR" />
+        </intent>
+    </queries>
+
+</manifest>

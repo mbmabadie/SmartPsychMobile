@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  network_security_config.xml
+  ──────────────────────────────────────────────────────────────
+  يسمح باتصالات HTTP (cleartext) مع السيرفر المحلي للتطوير
+  Android 9+ يرفض HTTP افتراضياً، لذا نحتاج هذا الملف
+  
+  للإنتاج: استخدم HTTPS فقط واحذف هذا الملف أو قيّده على نطاقات محددة
+-->
+<network-security-config>
+    <!-- السماح بـ HTTP لكل النطاقات في وضع التطوير -->
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <!-- السماح بـ HTTP صراحة لـ IPs المحلية الشائعة -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+        <domain includeSubdomains="true">10.0.2.2</domain>
+        <!-- شبكات محلية شائعة -->
+        <domain includeSubdomains="true">192.168.0.0</domain>
+        <domain includeSubdomains="true">192.168.1.0</domain>
+        <domain includeSubdomains="true">192.168.100.0</domain>
+        <domain includeSubdomains="true">10.0.0.0</domain>
+    </domain-config>
+</network-security-config>
