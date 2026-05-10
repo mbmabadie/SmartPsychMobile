@@ -11,8 +11,8 @@ class ApiService {
 
   ApiService._internal();
 
-  // ✅ عنوان افتراضي - يمكن تغييره من الإعدادات
-  static const String _defaultBaseUrl = 'http://YOUR_SERVER_IP:3000/api';
+  // ✅ عنوان السيرفر الإنتاجي - يمكن تغييره من الإعدادات لو لزم
+  static const String _defaultBaseUrl = 'https://api.smartpsych.cloud/api';
 
   late final Dio _dio;
   String? _token;
@@ -26,8 +26,22 @@ class ApiService {
   Future<void> initialize() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // تحميل الـ baseUrl من الإعدادات (إن وُجد)
-    _baseUrl = prefs.getString('api_base_url') ?? _defaultBaseUrl;
+    // ✅ تنظيف الـ URL القديم المخزن إذا كان placeholder أو localhost قديم
+    final savedUrl = prefs.getString('api_base_url');
+    final isStaleUrl = savedUrl != null && (
+      savedUrl.contains('YOUR_SERVER_IP') ||
+      savedUrl.contains('localhost') ||
+      savedUrl.contains('10.0.2.2') ||
+      savedUrl.contains('192.168.')
+    );
+
+    if (isStaleUrl) {
+      _baseUrl = _defaultBaseUrl;
+      await prefs.setString('api_base_url', _defaultBaseUrl);
+      debugPrint('🔄 تم استبدال الـ URL القديم بالـ URL الإنتاجي');
+    } else {
+      _baseUrl = savedUrl ?? _defaultBaseUrl;
+    }
 
     _dio = Dio(BaseOptions(
       baseUrl: _baseUrl,
